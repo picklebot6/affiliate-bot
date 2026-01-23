@@ -1,37 +1,76 @@
 name: Run Deal Bot
 
+# Allow manual runs and external triggers (cronjobs.com -> repository_dispatch)
 on:
+  workflow_dispatch: {}
   repository_dispatch:
     types: [run_deal_bot]
-  workflow_dispatch: {}
 
 concurrency:
   group: deal-bot
   cancel-in-progress: true
 
 jobs:
-  run:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+  run-bot:
+    name: Run Deal Bot
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
+
+      - name: Show runner IP (diagnostics)
+        run: |
+          echo "Runner IP:"
+          curl -s https://api.ipify.org && echo
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browsers
+      - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run bot
+      - name: Run deal-bot (Playwright or Node)
+        # Choose one of the two blocks below. Uncomment the one you need.
+        run: |
+          echo "Running deal-bot (use PLAYWRIGHT_MODE=tests for tests or PLAYWRIGHT_MODE=node for script)"
+          # Option A: run Playwright tests (if your bot is a playwright test)
+          PLAYWRIGHT_MODE=tests npx playwright test --workers=1 --retries=0
         env:
+          # runtime secrets (add these to GitHub repo Secrets)
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: npx playwright test -g "amazon afil bot"
+          # optional debug flags
+          # DEBUG: "true"
+
+      - name: Zip Playwright Report
+        if: always()
+        run: |
+          if [ -d playwright-report ]; then
+            zip -r playwright-report.zip playwright-report/
+          else
+            echo "No playwright-report directory to zip"
+            touch playwright-report.zip
+          fi
+
+      - name: Upload Playwright Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: afil-bot-html-report
+          path: afil-bot-report.zip
+
+      - name: Upload Test Videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screen-recordings
+          path: test-results/**/video.webm
