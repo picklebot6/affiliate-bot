@@ -6,6 +6,7 @@ export const productTitle = "//span[@id='productTitle']"
 export const productShortDesc = "(//div[contains(@id,'featurebullets')]//span)[1]"
 export const mainImage = "//span[contains(@data-action,'main-image')]//img"
 export const asin = "//input[@id='ASIN']"
+export const searchField = "//input[@role='searchbox']"
 
 export function percentOff(counter) {
     return `(//span[contains(text(),'% off')])[${String(counter)}]`

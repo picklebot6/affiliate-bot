@@ -4,6 +4,22 @@ import * as s from '../helpers/selectors.page'
  * @param {import('@playwright/test').Page} page
  */
 
+function extractAsinFromUrl(url) {
+    if (!url) return null;
+  
+    const start = url.indexOf("/dp/");
+    if (start === -1) return null;
+  
+    const asinStart = start + 4; // length of "/dp/"
+    const end = url.indexOf("?", asinStart);
+  
+    const asin = end !== -1
+      ? url.slice(asinStart, end)
+      : url.slice(asinStart);
+  
+    return asin.toUpperCase();
+  }
+
 export async function getDiscountAndPrice(page, counter, productInfo) {
     // find current deal
     let percentText = await page.$eval(s.percentOff(counter), el => el.textContent);
@@ -18,9 +34,9 @@ export async function getDiscountAndPrice(page, counter, productInfo) {
     // get discounted price
     let discountPrice = await page.$eval(s.dealPrice(counter), el => el.textContent);
     if (discountPrice) {
-        const match = discountPrice.match(/Deal Price:\s*(.*)/);
+        const match = discountPrice.match(/Deal Price:\s*\$(.*)/);
         if (match) {
-            productInfo.dealPrice = match ? match[1] : null;
+            productInfo.dealPrice = match ? Number(match[1]) : null;
         }
     }
 
@@ -37,24 +53,35 @@ export async function getProductInfo(page, productInfo) {
     // add to dict
     productInfo.name = shortName
     // get short description
-    productInfo.shortDesc = await page.$eval(s.productShortDesc, el => el.textContent.trim());
+    try {
+        productInfo.shortDesc = await page.$eval(s.productShortDesc, el => el.textContent.trim());
+    } catch (e) {
+        productInfo.shortDesc = ""
+    }
 
     // get image url
     productInfo.imageURL = await page.locator(s.mainImage).getAttribute('data-old-hires');
 
     // get asin
-    productInfo.asin = await page.locator(s.asin).getAttribute('value');
+    try {
+        productInfo.asin = extractAsinFromUrl(page.url());
+    } catch(e) {
+        productInfo.asin = await page.locator(s.asin).getAttribute('value');
+    }
+
+    // set affiliate link
+    productInfo.affiliateLink = `https://www.amazon.com/dp/${productInfo.asin}?tag=buywisealerts-20`
 
     return productInfo;
 }
 
 export function createCaption(productInfo) {
     let caption = `<b>${productInfo.name}</b>
-${productInfo.dealPrice} — ${String(productInfo.deal)}% off (currently)
+$${String(productInfo.dealPrice)} — ${String(productInfo.deal)}% off (currently)
 
 ${productInfo.shortDesc}
 
-<i>https://www.amazon.com/dp/${productInfo.asin}?tag=buywisealerts-20</i>
+<i>${productInfo.affiliateLink}</i>
 `.trim();
 
     return caption;
