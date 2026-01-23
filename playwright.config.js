@@ -35,6 +35,7 @@ export default defineConfig({
     headless: true,
     video: 'on',
     actionTimeout: 5000,
+    viewport: {width: 1280, height: 800}
   },
 
   /* Configure projects for major browsers */
