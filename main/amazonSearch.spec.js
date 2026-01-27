@@ -43,7 +43,7 @@ test('amazon afil bot', async ({ page }) => {
     //check if page needs to be scrolled down
     if (await page.locator(s.percentOff(counter)).count() == 0) {
       await page.keyboard.press("PageDown");
-      await page.waitForTimeout(1000)
+      await page.waitForTimeout(5000)
       // reset counter to 6
       counter -= 5;
     }
