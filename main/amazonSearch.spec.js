@@ -27,8 +27,6 @@ test('amazon afil bot', async ({ page }) => {
   await page.keyboard.press("Enter");
 
   // go to today's deals
-  // await page.locator(s.todaysDeals).waitFor({timeout: 10000});
-  // await page.locator(s.todaysDeals).click();
   await page.locator(s.department).waitFor({timeout: 10000})
 
   // go to electronics
@@ -69,8 +67,6 @@ test('amazon afil bot', async ({ page }) => {
         // check if this asin has already been posted
         if (await hasPosted(productInfo.asin)) {
           console.log("Skipping already posted:", productInfo.asin);
-          // go back
-          // await page.goBack({waitUntil: "domcontentloaded"});
           continue;
         }
         
