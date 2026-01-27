@@ -1,4 +1,3 @@
-// @ts-check
 import { test, expect } from '@playwright/test';
 import * as s from '../helpers/selectors.page'
 import * as telegram from '../helpers/telegram.page'
