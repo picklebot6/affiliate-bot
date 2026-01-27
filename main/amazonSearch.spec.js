@@ -48,8 +48,14 @@ test('amazon afil bot', async ({ page }) => {
       console.log(`decreased counter to ${counter}`)
     }
     try {
-      // wait for product to load
-      await page.locator(s.percentOff(counter)).waitFor({timeout: 10000})
+      try {
+        // wait for product to load
+        await page.locator(s.percentOff(counter)).waitFor({timeout: 10000})
+      } catch (e) {
+        counter -= 5;
+      } finally {
+        await page.locator(s.percentOff(counter)).waitFor({timeout: 10000})
+      }
 
       // initiate deals object
       let productInfo = {};
