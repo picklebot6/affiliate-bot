@@ -9,7 +9,7 @@ import "dotenv/config";
 // define env vars
 let percentThreshold = 25;
 let priceThreshold = 100;
-let maxDealsPosted = 3;
+let maxDealsPosted = 1;
 
 test.use({
   viewport: { width: 1280, height: 800 },
@@ -19,7 +19,7 @@ test('amazon afil bot', async ({ page }) => {
   // launch amazon
   await page.goto('https://amazon.com');
   await expect(page).toHaveTitle(/Amazon/);
-  await page.waitForTimeout(3000);
+  await page.waitForTimeout(5000);
   
   // search deals
   await page.locator(s.searchField).waitFor({timeout: 10000});
