@@ -9,7 +9,7 @@ import "dotenv/config";
 // define env vars
 let percentThreshold = 25;
 let priceThreshold = 100;
-let maxDealsPosted = 3;
+let maxDealsPosted = 7;
 
 test.use({
   viewport: { width: 1280, height: 800 },
@@ -97,6 +97,7 @@ test('amazon afil bot', async ({ page }) => {
       }
     } catch(e) {
       console.log(e)
+      // await page.pause()
       throw e;
     } finally {
       console.log(`Deals posted so far: ${dealsPosted}`)
