@@ -102,7 +102,6 @@ test('amazon afil bot', async ({ page }) => {
       }
     } catch(e) {
       console.log(e);
-      process.exit(1);
       throw e;
     } finally {
       console.log(`Deals posted so far: ${dealsPosted}`)
