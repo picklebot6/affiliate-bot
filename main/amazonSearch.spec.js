@@ -45,6 +45,7 @@ test('amazon afil bot', async ({ page }) => {
       await page.waitForTimeout(7000)
       // reset counter to 6
       counter -= 5;
+      console.log(`decreased counter to ${counter}`)
     }
     try {
       // wait for product to load
