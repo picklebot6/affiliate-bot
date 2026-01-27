@@ -43,7 +43,7 @@ test('amazon afil bot', async ({ page }) => {
     //check if page needs to be scrolled down
     if (await page.locator(s.percentOff(counter)).count() == 0) {
       await page.keyboard.press("PageDown");
-      await page.waitForTimeout(5000)
+      await page.waitForTimeout(7000)
       // reset counter to 6
       counter -= 5;
     }
@@ -101,7 +101,8 @@ test('amazon afil bot', async ({ page }) => {
         console.log(`Skipping because percent (${productInfo.deal}%) and/or price ($${productInfo.dealPrice}) threshold(s) were not met.`)
       }
     } catch(e) {
-      console.log(e)
+      console.log(e);
+      process.exit(1);
       throw e;
     } finally {
       console.log(`Deals posted so far: ${dealsPosted}`)
