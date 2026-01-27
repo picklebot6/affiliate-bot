@@ -9,7 +9,7 @@ import "dotenv/config";
 // define env vars
 let percentThreshold = 25;
 let priceThreshold = 100;
-let maxDealsPosted = 7;
+let maxDealsPosted = 3;
 
 test.use({
   viewport: { width: 1280, height: 800 },
@@ -19,7 +19,7 @@ test('amazon afil bot', async ({ page }) => {
   // launch amazon
   await page.goto('https://amazon.com');
   await expect(page).toHaveTitle(/Amazon/);
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(3000);
   
   // search deals
   await page.locator(s.searchField).waitFor({timeout: 10000});
@@ -40,7 +40,15 @@ test('amazon afil bot', async ({ page }) => {
   let counter = 1;
   let dealsPosted = 0;
 
-  while (await page.locator(s.percentOff(counter)).count() > 0) {
+  while (dealsPosted != maxDealsPosted) {
+    console.log(counter)
+    //check if page needs to be scrolled down
+    if (await page.locator(s.percentOff(counter)).count() == 0) {
+      await page.keyboard.press("PageDown");
+      await page.waitForTimeout(1000)
+      // reset counter to 6
+      counter -= 5;
+    }
     try {
       // wait for product to load
       await page.locator(s.percentOff(counter)).waitFor({timeout: 10000})
@@ -50,25 +58,26 @@ test('amazon afil bot', async ({ page }) => {
 
       // get discount and price
       productInfo = await f.getDiscountAndPrice(page, counter, productInfo);
-      console.log(productInfo)
 
       // add to deals if deal is greater than threshold
       if (productInfo.deal >= percentThreshold && productInfo.dealPrice >= priceThreshold) {
         // assign item name
         productInfo.name = await page.$eval(s.itemName(counter), el => el.textContent);
-
-        // click into product and extract info
-        await page.locator(s.itemName(counter)).click();
-        productInfo = await f.getProductInfo(page, productInfo);
-        console.log(productInfo)
+        productInfo.asin = await page.$eval(s.productAsin(counter), el => el.getAttribute('data-asin'));
+        console.log(productInfo.asin)
 
         // check if this asin has already been posted
         if (await hasPosted(productInfo.asin)) {
           console.log("Skipping already posted:", productInfo.asin);
           // go back
-          await page.goBack({waitUntil: "domcontentloaded"});
+          // await page.goBack({waitUntil: "domcontentloaded"});
           continue;
         }
+        
+        // click into product and extract info
+        await page.locator(s.itemName(counter)).click();
+        productInfo = await f.getProductInfo(page, productInfo);
+        console.log(productInfo)
 
         // create caption
         let caption = f.createCaption(productInfo);
@@ -97,29 +106,15 @@ test('amazon afil bot', async ({ page }) => {
       }
     } catch(e) {
       console.log(e)
-      // await page.pause()
       throw e;
     } finally {
       console.log(`Deals posted so far: ${dealsPosted}`)
-      // wait for product to load
-      await page.locator(s.percentOff(counter)).waitFor({timeout: 10000})
-      // await page.pause()
-
-      // if 5 deals have been found, break
+      // if n deals have been found, break
       if (dealsPosted == maxDealsPosted) {
         break;
       }
-
       //count
       counter++;
-
-      // scroll down and reset counter every 15 items
-      if (counter > 15) {
-        await page.keyboard.press("PageDown");
-        await page.waitForTimeout(5000)
-        // reset counter to 6
-        counter = 6;
-      }
     }
   }
 });

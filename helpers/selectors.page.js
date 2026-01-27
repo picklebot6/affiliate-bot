@@ -12,6 +12,10 @@ export function percentOff(counter) {
     return `(//span[contains(text(),'% off')])[${String(counter)}]`
 }
 
+export function productAsin(counter) {
+    return `(//span[contains(text(),'% off')])[${String(counter)}]/ancestor::div[@data-asin]`
+}
+
 export function dealPrice(counter) {
     return `(//span[contains(@class,'offscreen') and contains(text(),'Deal Price:')])[${String(counter)}]`
 }

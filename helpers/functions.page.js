@@ -34,10 +34,13 @@ export async function getDiscountAndPrice(page, counter, productInfo) {
     // get discounted price
     let discountPrice = await page.$eval(s.dealPrice(counter), el => el.textContent);
     if (discountPrice) {
-        const match = discountPrice.match(/Deal Price:\s*\$(.*)/);
+        const match = discountPrice.match(
+        /Deal Price:\s*\$((?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{2})?)/
+        );
+          
         if (match) {
-            productInfo.dealPrice = match ? Number(match[1]) : null;
-        }
+        productInfo.dealPrice = Number(match[1].replace(/,/g, ''));
+        };
     }
 
     return productInfo
@@ -77,7 +80,7 @@ export async function getProductInfo(page, productInfo) {
 
 export function createCaption(productInfo) {
     let caption = `<b>${productInfo.name}</b>
-$${String(productInfo.dealPrice)} — ${String(productInfo.deal)}% off (currently)
+$${String(productInfo.dealPrice.toFixed(2))} — ${String(productInfo.deal)}% off (currently)
 
 ${productInfo.shortDesc}
 
