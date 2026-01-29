@@ -13,18 +13,11 @@ async function callTelegram(method, payload) {
   return data.result;
 }
 
-function escapeHtml(text = "") {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
 export async function sendPhoto(photoUrl, caption) {
   return callTelegram("sendPhoto", {
     chat_id: process.env.TELEGRAM_CHAT_ID,
     photo: photoUrl,
-    caption: escapeHtml(caption),
+    caption: caption,
     parse_mode: "HTML",
   });
 }

@@ -57,7 +57,10 @@ export async function getProductInfo(page, productInfo) {
     productInfo.name = shortName
     // get short description
     try {
-        productInfo.shortDesc = await page.$eval(s.productShortDesc, el => el.textContent.trim());
+        let desc = await page.$eval(s.productShortDesc, el => el.textContent.trim());
+        // remove everything after the first sentence
+        let split = desc.split(". ");
+        productInfo.shortDesc = split[0]+".";
     } catch (e) {
         productInfo.shortDesc = ""
     }
@@ -78,14 +81,25 @@ export async function getProductInfo(page, productInfo) {
     return productInfo;
 }
 
+export function escapeTelegramHTML(text = "") {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 export function createCaption(productInfo) {
-    let caption = `<b>${productInfo.name}</b>
-$${String(productInfo.dealPrice.toFixed(2))} — ${String(productInfo.deal)}% off (currently)
+  const name = escapeTelegramHTML(productInfo.name);
+  const desc = escapeTelegramHTML(productInfo.shortDesc);
+  const link = escapeTelegramHTML(productInfo.affiliateLink);
 
-${productInfo.shortDesc}
+  return `
+<b>📦 ${name}</b>
 
-<i>${productInfo.affiliateLink}</i>
+💰 <b>$${productInfo.dealPrice.toFixed(2)}</b> — <i>${productInfo.deal}% off (currently)</i>
+
+🔥 ${desc}
+
+🔗 <i>${link}</i>
 `.trim();
-
-    return caption;
 }

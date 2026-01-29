@@ -8,7 +8,7 @@ import "dotenv/config";
 // define env vars
 let percentThreshold = 25;
 let priceThreshold = 100;
-let maxDealsPosted = 1;
+let maxDealsPosted = 3;
 
 test.use({
   viewport: { width: 1280, height: 800 },
