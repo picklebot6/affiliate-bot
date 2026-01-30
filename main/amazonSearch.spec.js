@@ -8,7 +8,7 @@ import "dotenv/config";
 // define env vars
 let percentThreshold = 25;
 let priceThreshold = 100;
-let maxDealsPosted = 3;
+let maxDealsPosted = 2;
 
 test.use({
   viewport: { width: 1280, height: 800 },
@@ -103,6 +103,8 @@ test('amazon afil bot', async ({ page }) => {
 
         // go back
         await page.goBack({waitUntil: "domcontentloaded"});
+        await page.waitForTimeout(5000);
+
       } else {
         console.log(`Skipping because percent (${productInfo.deal}%) and/or price ($${productInfo.dealPrice}) threshold(s) were not met.`)
       }
