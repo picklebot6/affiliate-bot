@@ -8,7 +8,7 @@ import "dotenv/config";
 // define env vars
 let percentThreshold = 25;
 let priceThreshold = 100;
-let maxDealsPosted = 2;
+let maxDealsPosted = 1;
 
 test.use({
   viewport: { width: 1280, height: 800 },
@@ -43,10 +43,17 @@ test('amazon afil bot', async ({ page }) => {
     if (await page.locator(s.percentOff(counter)).count() == 0) {
       await page.keyboard.press("PageDown");
       await page.waitForTimeout(7000)
-      // reset counter to 6
-      counter -= 5;
-      console.log(`decreased counter to ${counter}`)
+      // decrease counter
+      while (await page.locator(s.percentOff(counter)).count() == 0) {
+        counter -= 5;
+        console.log(`decreased counter to ${counter}`)
+        if (counter < 0) {
+          console.log("decreased counter to 0")
+          break;
+        }
+      }
     }
+
     try {
       try {
         // wait for product to load
