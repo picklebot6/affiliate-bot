@@ -1,6 +1,6 @@
 export const todaysDeals = "//a[contains(@href,'deals')]"
 export const department = "//span[text()='Department']"
-export const electronics = "//span[text()='Electronics']"
+export const electronics = "//span[contains(@class,'radio-label')]/span[text()='Electronics']"
 export const seeMore = "//button[contains(@class,'SeeMoreButton') and contains(@aria-labelledby,'departments-label')]"
 export const productTitle = "//span[@id='productTitle']"
 export const productShortDesc = "(//div[contains(@id,'featurebullets')]//span)[1]"

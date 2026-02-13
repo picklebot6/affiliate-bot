@@ -32,6 +32,7 @@ test('amazon afil bot', async ({ page }) => {
   // go to electronics
   await page.locator(s.seeMore).click();
   await page.locator(s.electronics).click();
+  await page.waitForTimeout(5000);
   await page.locator(s.percentOff(1)).waitFor({timeout: 10000})
 
   // get info for top 3 deals that are above 25%
@@ -74,7 +75,7 @@ test('amazon afil bot', async ({ page }) => {
       // add to deals if deal is greater than threshold
       if (productInfo.deal >= percentThreshold && productInfo.dealPrice >= priceThreshold) {
         // assign item name
-        productInfo.name = await page.$eval(s.itemName(counter), el => el.textContent);
+        // productInfo.name = await page.$eval(s.itemName(counter), el => el.textContent);
         productInfo.asin = await page.$eval(s.productAsin(counter), el => el.getAttribute('data-asin'));
         console.log(productInfo.asin)
 
@@ -118,6 +119,7 @@ test('amazon afil bot', async ({ page }) => {
       }
     } catch(e) {
       console.log(e);
+      await page.pause();
       process.exit(1);
       throw e;
     } finally {
